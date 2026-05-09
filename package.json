@@ -1,0 +1,21 @@
+{
+  "name": "tourist-behaviour-big-data",
+  "version": "1.0.0",
+  "description": "Analyzing Tourist Behaviour using Big Data Technology - dashboard, API, analytics pipeline, and sample dataset.",
+  "main": "server.py",
+  "scripts": {
+    "start": "python server.py",
+    "analyze:england": "python src/analytics.py \"data/England Tourism.csv\"",
+    "analyze:american": "python src/analytics.py \"data/American Tourism.csv\"",
+    "analyze:indian": "python src/analytics.py \"data/Indian Tourism.csv\"",
+    "analyze:japanese": "python src/analytics.py \"data/Japan Tourism.csv\""
+    
+  },
+  "keywords": [
+    "tourism",
+    "big-data",
+    "analytics",
+    "dashboard"
+  ],
+  "license": "MIT"
+}

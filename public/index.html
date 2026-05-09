@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GeoTrail | Tourism Behaviour Analytics</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#292323">
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <button id="menuToggle" class="menu-toggle" aria-label="Open navigation" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <div id="menuBackdrop" class="menu-backdrop"></div>
+    <aside id="sidebar" class="sidebar" aria-label="Main navigation">
+      <div class="brand">
+        <img class="brand-logo" src="/assets/richardson-tech.png" alt="Richardson Tech logo">
+        <div>
+          <strong>GeoTrail</strong>
+          <small>Interactive Big Data App</small>
+        </div>
+      </div>
+      <nav aria-label="Application sections">
+        <a href="#overview" class="active">Control</a>
+        <a href="#hotspots">Hotspots</a>
+        <a href="#stream">Live Feed</a>
+        <a href="#segments">Segments</a>
+        <a href="#pipeline">Pipeline</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Tourist Behaviour Analytics using Big Data Technology</p>
+          <h1>GeoTrail - Explore Beyond the Map</h1>
+        </div>
+        <div class="toolbar">
+          <button id="playBtn" class="primary-button">Pause Stream</button>
+          <button id="refreshBtn" class="icon-button" title="Refresh analytics" aria-label="Refresh analytics">R</button>
+          <button id="downloadBtn" class="secondary-button">Export JSON</button>
+        </div>
+      </header>
+
+      <section id="overview" class="control-strip">
+        <label>
+          Dataset
+          <select id="datasetFilter"></select>
+        </label>
+        <label>
+          Location
+          <select id="locationFilter"></select>
+        </label>
+        <label>
+          Theme
+          <select id="themeFilter"></select>
+        </label>
+        <label>
+          Behaviour
+          <select id="behaviorFilter"></select>
+        </label>
+        <label>
+          Min faves
+          <input id="favesFilter" type="range" min="0" max="40" value="0">
+          <span id="favesValue">0</span>
+        </label>
+        <label class="search-label">
+          Search tags or text
+          <input id="searchFilter" type="search" placeholder="museum, river, sculpture">
+        </label>
+      </section>
+
+      <section class="hero-band">
+        <div class="hero-brand">
+          <img class="hero-logo" src="/assets/richardson-tech.png" alt="Richardson Tech logo">
+          <div>
+            <strong>GeoTrail - Tourist Analytics Dashboard</strong>
+            <p>Streaming-style analytics over the England and American tourism CSVs: places, tags, favorites, sentiment, inferred behavior, and content themes.</p>
+          </div>
+        </div>
+        <div class="hero-metric">
+          <span id="generatedAt">Loading</span>
+          <strong id="recordCount">0 rows</strong>
+        </div>
+      </section>
+
+      <section class="metric-grid" aria-label="Key metrics">
+        <article class="metric"><span>Filtered records</span><strong id="records">-</strong></article>
+        <article class="metric"><span>Total faves</span><strong id="totalFaves">-</strong></article>
+        <article class="metric"><span>Sentiment</span><strong id="sentiment">-</strong></article>
+        <article class="metric"><span>Unique tags</span><strong id="uniqueTags">-</strong></article>
+      </section>
+
+      <section class="dashboard-grid">
+        <article class="panel large">
+          <div class="panel-header">
+            <div>
+              <span class="kicker">Dynamic attention graph</span>
+              <h2>Smooth location attention movement</h2>
+            </div>
+            <span class="pill" id="streamStatus">Stream running</span>
+          </div>
+          <canvas id="attentionChart" width="2400" height="1100" aria-label="Tourism attention bar graph"></canvas>
+        </article>
+
+        <article id="hotspots" class="panel map-panel">
+          <div class="panel-header">
+            <div>
+              <span class="kicker">Interactive hotspots</span>
+              <h2>Tourism attention map</h2>
+            </div>
+          </div>
+          <div id="hotspotMap" class="hotspot-map" aria-label="Tourism hotspot map"></div>
+          <div id="selectedHotspot" class="selection-box"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <span class="kicker">Tag intelligence</span>
+              <h2>Discovery cloud</h2>
+            </div>
+          </div>
+          <div id="tagCloud" class="tag-cloud"></div>
+        </article>
+      </section>
+
+      <section id="stream" class="dashboard-grid">
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <span class="kicker">Live-style ingestion</span>
+              <h2>Tourist content feed</h2>
+            </div>
+            <span id="streamCounter" class="pill">0 events</span>
+          </div>
+          <div id="liveFeed" class="live-feed"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <span class="kicker">Co-occurrence</span>
+              <h2>Tags that travel together</h2>
+            </div>
+          </div>
+          <div id="cooccurrenceList" class="signal-list"></div>
+        </article>
+      </section>
+
+      <section id="segments" class="panel full-width">
+        <div class="panel-header">
+          <div>
+            <span class="kicker">Behavior segmentation</span>
+            <h2>Click a segment to drill into records</h2>
+          </div>
+        </div>
+        <div id="segmentGrid" class="segment-grid"></div>
+      </section>
+
+      <section class="dashboard-grid">
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <span class="kicker">Prediction</span>
+              <h2>Next ingestion windows</h2>
+            </div>
+          </div>
+          <div id="forecastList" class="forecast-list"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <span class="kicker">Alerts</span>
+              <h2>Anomaly monitor</h2>
+            </div>
+          </div>
+          <div id="anomalyList" class="signal-list"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <span class="kicker">Actions</span>
+              <h2>Recommendations</h2>
+            </div>
+          </div>
+          <div id="recommendations" class="recommendation-list"></div>
+        </article>
+      </section>
+
+      <section id="pipeline" class="panel full-width">
+        <div class="panel-header">
+          <div>
+            <span class="kicker">Big data technology layer</span>
+            <h2>Pipeline simulator</h2>
+          </div>
+          <button id="runPipelineBtn" class="primary-button">Run Pipeline</button>
+        </div>
+        <div class="pipeline">
+          <div class="pipe-node active"><strong>CSV ingest</strong><span id="pipeIngest">-</span></div>
+          <div class="pipe-node"><strong>Clean & enrich</strong><span>tags, themes, sentiment</span></div>
+          <div class="pipe-node"><strong>Aggregate</strong><span>locations, segments, faves</span></div>
+          <div class="pipe-node"><strong>Detect</strong><span>spikes and low sentiment</span></div>
+          <div class="pipe-node"><strong>Recommend</strong><span>campaign actions</span></div>
+        </div>
+      </section>
+</main>
+
+    <script src="/app.js"></script>
+    <script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("/service-worker.js");</script>
+  </body>
+</html>
