@@ -1,0 +1,52 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="crimsonGlow" x1="32" y1="32" x2="224" y2="224" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF2E4D"/>
+      <stop offset="1" stop-color="#B3122F"/>
+    </linearGradient>
+
+    <linearGradient id="darkBase" x1="0" y1="0" x2="256" y2="256">
+      <stop stop-color="#2A2A2D"/>
+      <stop offset="1" stop-color="#161618"/>
+    </linearGradient>
+
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="256" height="256" rx="64" fill="url(#darkBase)"/>
+
+  <!-- GeoTrail path -->
+  <path
+    d="M64 172C82 124 114 96 154 84C176 78 196 82 210 96"
+    stroke="url(#crimsonGlow)"
+    stroke-width="18"
+    stroke-linecap="round"
+    filter="url(#softGlow)"
+  />
+
+  <!-- Location marker -->
+  <circle cx="156" cy="84" r="20" fill="#D9D9D9"/>
+  <circle cx="156" cy="84" r="9" fill="#FF2E4D"/>
+
+  <!-- Minimal GT line accent -->
+  <path
+    d="M78 76H128"
+    stroke="#D9D9D9"
+    stroke-width="12"
+    stroke-linecap="round"
+  />
+
+  <path
+    d="M78 76V122"
+    stroke="#D9D9D9"
+    stroke-width="12"
+    stroke-linecap="round"
+  />
+</svg>
