@@ -1,4 +1,4 @@
-# Analyzing Tourist Behaviour using Big Data Technology
+# GeoTrail - Explore Beyond the map.
 
 A full-stack tourism analytics app with a modern interactive dashboard UI, backend API, real CSV dataset ingestion, and an analytics pipeline for visitor behavior, content engagement, inferred tourist intent, hotspot detection, segmentation, anomaly detection, and forecasting.
 
@@ -18,6 +18,8 @@ A full-stack tourism analytics app with a modern interactive dashboard UI, backe
 +-- data/
 |   +-- American Tourism.csv
 |   +-- England Tourism.csv
+|   +-- Indian Tourism.csv
+|   +-- Japan Tourism.csv
 +-- public/
 |   +-- app.js
 |   +-- index.html
@@ -142,6 +144,9 @@ You can run the pipeline directly:
 ```bash
 python src/analytics.py "data/England Tourism.csv"
 python src/analytics.py "data/American Tourism.csv"
+python src/analytics.py "data/Indian Tourism.csv"
+python src/analytics.py "data/Japan Tourism.csv"
+
 ```
 
 ## Phone Install
@@ -158,3 +163,6 @@ This app is intentionally dependency-free for easy local execution, but the arch
 - Serve aggregates from ClickHouse, BigQuery, Snowflake, Cassandra, MongoDB, or PostgreSQL.
 - Replace the simple trend forecast with Prophet, ARIMA, XGBoost, or an MLflow-managed model.
 - Add authentication, dataset governance, and scheduled report generation.
+
+
+---Built by Kenny Richardson Kodipally.
