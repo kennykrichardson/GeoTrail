@@ -165,4 +165,4 @@ This app is intentionally dependency-free for easy local execution, but the arch
 - Add authentication, dataset governance, and scheduled report generation.
 
 
----Built by Kenny Richardson Kodipally.
+## Built by Kenny Richardson Kodipally.
