@@ -79,7 +79,7 @@
           <img class="hero-logo" src="/assets/richardson-tech.png" alt="Richardson Tech logo">
           <div>
             <strong>GeoTrail - Explore Beyond the Map</strong>
-            <p>Streaming-style analytics over the England and American tourism CSVs: places, tags, favorites, sentiment, inferred behavior, and content themes.</p>
+            <p>Streaming-style analytics over the England, American, Indian and Japanese tourism CSVs: places, tags, favorites, sentiment, inferred behavior, and content themes.</p>
           </div>
         </div>
         <div class="hero-metric">
@@ -104,7 +104,9 @@
             </div>
             <span class="pill" id="streamStatus">Stream running</span>
           </div>
-          <canvas id="attentionChart" width="2400" height="1100" aria-label="Tourism attention bar graph"></canvas>
+          <div style="height:420px; position:relative;">
+          <canvas id="attentionChart" aria-label="Tourism attention bar graph"></canvas>
+          </div> 
         </article>
 
         <article id="hotspots" class="panel map-panel">
@@ -182,16 +184,6 @@
           </div>
           <div id="anomalyList" class="signal-list"></div>
         </article>
-
-        <article class="panel">
-          <div class="panel-header">
-            <div>
-              <span class="kicker">Actions</span>
-              <h2>Recommendations</h2>
-            </div>
-          </div>
-          <div id="recommendations" class="recommendation-list"></div>
-        </article>
       </section>
 
       <section id="pipeline" class="panel full-width">
@@ -212,6 +204,7 @@
       </section>
 </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="/app.js"></script>
     <script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("/service-worker.js");</script>
   </body>

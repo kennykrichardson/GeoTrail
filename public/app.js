@@ -50,99 +50,74 @@ function escapeHtml(value) {
   }[char]));
 }
 
+let attentionChart = null;
+
 function drawAttentionBars(series) {
   const canvas = document.getElementById("attentionChart");
-  const ctx = canvas.getContext("2d");
+
   const rows = (series || []).slice(0, 10);
-  const width = canvas.width;
-  const height = canvas.height;
-  const padding = 130;
-  const chartWidth = width - padding * 2;
-  const chartHeight = height - padding * 2;
-  const max = Math.max(...rows.map(row => row.count), 1);
-  const barGap = 14;
-  const barWidth = rows.length ? (chartWidth - barGap * (rows.length - 1)) / rows.length : 0;
-  const duration = 850;
-  const start = performance.now();
 
-  function frame(now) {
-    const progress = Math.min(1, (now - start) / duration);
-    const ease = 1 - Math.pow(1 - progress, 3);
-    ctx.clearRect(0, 0, width, height);
+  const labels = rows.map(row => row.name);
+  const values = rows.map(row => row.count);
 
-    const background = ctx.createLinearGradient(0, 0, width, height);
-    background.addColorStop(0, "#F0F0F0");
-    background.addColorStop(0.62, "rgba(204, 53, 54, 0.08)");
-    background.addColorStop(1, "rgba(41, 35, 35, 0.14)");
-    ctx.fillStyle = background;
-    ctx.fillRect(0, 0, width, height);
-
-    ctx.strokeStyle = "rgba(113, 112, 110, 0.24)";
-    ctx.lineWidth = 1;
-    for (let i = 0; i <= 4; i += 1) {
-      const y = padding + (chartHeight / 4) * i;
-      ctx.beginPath();
-      ctx.moveTo(padding, y);
-      ctx.lineTo(width - padding, y);
-      ctx.stroke();
-    }
-
-    rows.forEach((row, index) => {
-      const x = padding + index * (barWidth + barGap);
-      const barHeight = (row.count / max) * chartHeight * ease;
-      const y = height - padding - barHeight;
-      const gradient = ctx.createLinearGradient(x, y, x + barWidth, height - padding);
-      gradient.addColorStop(0, row.color || "#CC3536");
-      gradient.addColorStop(0.55, "#CC3536");
-      gradient.addColorStop(1, "#292323");
-      ctx.fillStyle = gradient;
-      roundRect(ctx, x, y, barWidth, barHeight, 10);
-      ctx.fill();
-
-      ctx.fillStyle = "#292323";
-      ctx.font = "bold 36px system-ui";
-      ctx.textAlign = "center";
-      ctx.fillText(String(row.count), x + barWidth / 2, y - 10);
-
-      ctx.save();
-      ctx.translate(x + barWidth / 2, height - 24);
-      ctx.rotate(-Math.PI / 7);
-      ctx.fillStyle = "#71706E";
-      ctx.font = "bold 30px system-ui";
-      ctx.fillText(row.name.slice(0, 16), 0, 0);
-      ctx.restore();
-    });
-
-    ctx.textAlign = "left";
-    ctx.fillStyle = "#292323";
-    ctx.font = "bold 48px system-ui";
-    ctx.fillText("Location attention volume", padding, 30);
-    ctx.fillStyle = "#71706E";
-    ctx.font = "30px system-ui";
-    ctx.fillText("Animated from live filtered CSV aggregates", padding, 82);
-
-    if (!rows.length) {
-      ctx.fillStyle = "#71706E";
-      ctx.font = "bold 44px system-ui";
-      ctx.fillText("No bar graph data matches the current filters", padding, height / 2);
-    }
-
-    if (progress < 1) requestAnimationFrame(frame);
+  if (attentionChart) {
+    attentionChart.destroy();
   }
 
-  requestAnimationFrame(frame);
+  attentionChart = new Chart(canvas, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{
+        label: "Attention Volume",
+        data: values,
+        backgroundColor: "#CC3536",
+        borderRadius: 10,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+
+      plugins: {
+        legend: {
+          labels: {
+            color: "#D9D9D9"
+          }
+        },
+
+        tooltip: {
+          backgroundColor: "#1B1B1B",
+          titleColor: "#FFFFFF",
+          bodyColor: "#D9D9D9"
+        }
+      },
+
+      scales: {
+        x: {
+          ticks: {
+            color: "#000000"
+          },
+          grid: {
+            color: "rgba(255,255,255,0.05)"
+          }
+        },
+
+        y: {
+          beginAtZero: true,
+          ticks: {
+            color: "#000000"
+          },
+          grid: {
+            color: "rgba(255,255,255,0.08)"
+          }
+        }
+      }
+    }
+  });
 }
 
-function roundRect(ctx, x, y, width, height, radius) {
-  const r = Math.min(radius, width / 2, height / 2);
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.arcTo(x + width, y, x + width, y + height, r);
-  ctx.arcTo(x + width, y + height, x, y + height, r);
-  ctx.arcTo(x, y + height, x, y, r);
-  ctx.arcTo(x, y, x + width, y, r);
-  ctx.closePath();
-}
 
 function renderHotspots(rows, mapInfo) {
   const map = document.getElementById("hotspotMap");
@@ -258,15 +233,6 @@ function renderSignals(id, rows, emptyText) {
   `).join("") : `<div class="signal-item"><strong>${emptyText}</strong></div>`;
 }
 
-function renderRecommendations(rows) {
-  document.getElementById("recommendations").innerHTML = rows.map(row => `
-    <div class="recommendation-item">
-      <strong>${escapeHtml(row.title)}</strong>
-      <span>${row.impact} impact | ${escapeHtml(row.detail)}</span>
-    </div>
-  `).join("");
-}
-
 function pushStreamItem(item) {
   const feed = document.getElementById("liveFeed");
   const node = document.createElement("article");
@@ -336,7 +302,6 @@ function renderDashboard(data, optionsReady = true) {
   renderForecast(data.forecast.next);
   renderSignals("cooccurrenceList", data.cooccurrence, "No tag links found");
   renderSignals("anomalyList", data.anomalies, "No anomalies detected");
-  renderRecommendations(data.recommendations);
   restartStream();
 }
 

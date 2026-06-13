@@ -171,6 +171,7 @@ main {
   align-items: center;
   justify-content: space-between;
   gap: 18px;
+  border-radius: 20px;
 }
 
 .hero-brand {
@@ -243,6 +244,7 @@ h2 {
     linear-gradient(135deg, rgba(240, 240, 240, 0.94), rgba(204, 53, 54, 0.055)),
     rgba(240, 240, 240, 0.86);
   border: 1px solid var(--line);
+  border-radius: 20px;
   box-shadow: var(--shadow);
 }
 
@@ -342,6 +344,7 @@ input[type="range"] {
     linear-gradient(145deg, rgba(240, 240, 240, 0.96), rgba(240, 240, 240, 0.78)),
     var(--panel);
   border: 1px solid var(--line);
+  border-radius: 20px;
   box-shadow: var(--shadow);
 }
 
@@ -470,6 +473,7 @@ canvas {
 .pipe-node {
   padding: 14px;
   border: 1px solid var(--line);
+  border-radius: 16px;
   background:
     linear-gradient(145deg, rgba(240, 240, 240, 0.92), rgba(113, 112, 110, 0.08)),
     rgba(240, 240, 240, 0.76);
@@ -567,12 +571,15 @@ canvas {
 
 .segment-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  margin-top: 18px;
+  gap: 18px;
+  margin-top: 24px;
+  padding: 12px 0;
 }
 
 .segment-card {
   min-height: 156px;
   padding: 16px;
+  border-radius: 18px;
   text-align: left;
   color: var(--ink);
   border: 1px solid var(--line);
@@ -607,8 +614,9 @@ canvas {
 .pipeline {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 18px;
+  gap: 18px;
+  margin-top: 24px;
+  padding: 12px 0;
 }
 
 .pipe-node {
@@ -655,6 +663,7 @@ canvas {
   .segment-grid,
   .pipeline {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-radius: 18px;
   }
 }
 
@@ -717,6 +726,7 @@ canvas {
   .segment-grid,
   .pipeline {
     grid-template-columns: 1fr;
+    border-radius: 20px;
   }
 
   .hotspot-map {
@@ -806,4 +816,13 @@ button:hover {
     transform: scale(1);
     opacity: 1;
   }
+}
+
+#segments {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+#pipeline {
+  margin-top: 20px;
 }
