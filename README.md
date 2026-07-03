@@ -54,12 +54,6 @@ $env:PORT=5000
 python server.py
 ```
 
-If Windows PowerShell cannot find `python`, use the included launcher:
-
-```powershell
-.\start_geotrail.bat
-```
-
 ## API
 
 ## Screenshots
