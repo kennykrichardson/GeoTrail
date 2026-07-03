@@ -77,10 +77,10 @@ If Windows PowerShell cannot find `python`, use the included launcher:
 ![Pipeline](screenshots/geotrail_live_feed.png)
 
 ### Navigation Bar
-![Pipeline](screenshots/geotrail_navigation_bar.png)
+![Navigation](screenshots/geotrail_navigation_bar.png)
 
 ### Dynamic Attention Graph
-![Pipeline](screenshots/geotrail_dynamic_graph.png)
+![Graph](screenshots/geotrail_dynamic_graph.png)
 
 - Dashboard Overview
 - Tourism Hotspot Map
