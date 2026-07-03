@@ -70,9 +70,6 @@ python server.py
 ### Live-Style Ingestion Pipeline
 ![Pipeline](screenshots/geotrail_live_feed.png)
 
-### Navigation Bar
-![Navigation](screenshots/geotrail_navigation_bar.png)
-
 ### Dynamic Attention Graph
 ![Graph](screenshots/geotrail_dynamic_graph.png)
 
