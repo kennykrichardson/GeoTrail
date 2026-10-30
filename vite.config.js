@@ -2,15 +2,16 @@ import { defineConfig } from 'vite';
 import { resolve } from 'node:path';
 
 export default defineConfig({
-  root: 'public',
-  publicDir: false,
+  publicDir: 'public',
+
+  resolve: {
+    alias: {
+      '@': resolve(process.cwd(), 'src')
+    }
+  },
+
   build: {
     outDir: 'dist',
     emptyOutDir: true
-  },
-  resolve: {
-    alias: {
-      '@': resolve(process.cwd(), 'public')
-    }
   }
 });

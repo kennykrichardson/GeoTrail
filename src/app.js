@@ -1,7 +1,6 @@
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Chart, registerables } from 'chart.js';
-import './styles.css';
 Chart.register(...registerables);
 
 const DATA_URL = '/data/tourism-records.json';
