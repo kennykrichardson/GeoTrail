@@ -1,211 +1,85 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>GeoTrail | Tourism Behaviour Analytics</title>
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#292323">
-    <link rel="stylesheet" href="/styles.css">
-    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
-  </head>
-  <body>
-    <button id="menuToggle" class="menu-toggle" aria-label="Open navigation" aria-expanded="false">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
-    <div id="menuBackdrop" class="menu-backdrop"></div>
-    <aside id="sidebar" class="sidebar" aria-label="Main navigation">
-      <div class="brand">
-        <img class="brand-logo" src="/assets/richardson-tech.png" alt="Richardson Tech logo">
-        <div>
-          <strong>GeoTrail</strong>
-          <small>Interactive Big Data App</small>
-        </div>
-      </div>
-      <nav aria-label="Application sections">
-        <a href="#overview" class="active">Control</a>
-        <a href="#hotspots">Hotspots</a>
-        <a href="#stream">Live Feed</a>
-        <a href="#segments">Segments</a>
-        <a href="#pipeline">Pipeline</a>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f4f0e8" />
+  <meta name="description" content="GeoTrail is a tourism intelligence platform exploring destination attention, visitor behaviour and travel signals across India, Japan, England and the United States. Engineered by Kenny Richardson." />
+  <meta name="author" content="Kenny Richardson" />
+  <meta name="creator" content="Kenny Richardson" />
+  <meta name="keywords" content="GeoTrail, tourism analytics, destination intelligence, travel data, tourism dashboard, Kenny Richardson, kennykrichardson" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="GeoTrail — Explore Beyond the Map" />
+  <meta property="og:description" content="A richer view of the world's travel signals. Discover destination attention and visitor behaviour across four countries." />
+  <meta property="og:image" content="/og-image.png" />
+  <meta property="og:image:alt" content="GeoTrail tourism intelligence dashboard by Kenny Richardson" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="GeoTrail — Explore Beyond the Map" />
+  <meta name="twitter:description" content="Tourism intelligence, destination attention and visitor behaviour." />
+  <meta name="twitter:image" content="/og-image.png" />
+  <title>GeoTrail — Explore Beyond the Map</title>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"GeoTrail","applicationCategory":"TravelApplication","operatingSystem":"Web","description":"A browser-based tourism intelligence dashboard for India, Japan, England and the United States.","author":{"@type":"Person","name":"Kenny Richardson","alternateName":["kennykrichardson","Kenny Richardson Kodipally"],"url":"https://linkedin.com/in/kennykrichardson"},"creator":{"@type":"Person","name":"Kenny Richardson"}}
+  </script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#overview" aria-label="GeoTrail home"><span class="brand-mark">G<span>✳</span></span><span class="brand-copy"><b>GEOTRAIL</b><small>DESTINATION INTELLIGENCE</small></span></a>
+      <div class="side-label">WORKSPACE</div>
+      <nav class="side-nav" aria-label="Main navigation">
+        <a class="nav-link active" href="#overview"><span>◫</span> Overview <i>01</i></a>
+        <a class="nav-link" href="#explore"><span>◎</span> Explore map <i>02</i></a>
+        <a class="nav-link" href="#signals"><span>⌁</span> Travel signals <i>03</i></a>
+        <a class="nav-link" href="#segments"><span>◷</span> Visitor profiles <i>04</i></a>
       </nav>
+      <div class="side-label collection-label">COLLECTIONS</div>
+      <div class="country-list">
+        <button class="country-choice active" data-country="All"><span class="flag">✦</span><span>All destinations</span><b>04</b></button>
+        <button class="country-choice" data-country="Indian Tourism"><span class="flag">🇮🇳</span><span>India</span><b>IN</b></button>
+        <button class="country-choice" data-country="Japan Tourism"><span class="flag">🇯🇵</span><span>Japan</span><b>JP</b></button>
+        <button class="country-choice" data-country="England Tourism"><span class="flag">🇬🇧</span><span>England</span><b>UK</b></button>
+        <button class="country-choice" data-country="American Tourism"><span class="flag">🇺🇸</span><span>United States</span><b>US</b></button>
+      </div>
+      <div class="sidebar-bottom">
+        <div class="data-status"><span class="status-dot"></span><div><b>DATA ENGINE ONLINE</b><small>Browser analytics · v2.0</small></div></div>
+        <div class="creator"><img src="/assets/richardson-tech.png" alt="Richardson Tech" /><div><small>DESIGNED & ENGINEERED BY</small><b>Kenny Richardson</b><a href="https://linkedin.com/in/kennykrichardson" target="_blank" rel="noreferrer">@kennykrichardson ↗</a></div></div>
+      </div>
     </aside>
 
-    <main>
-      <header class="topbar">
-        <div>
-          <p class="eyebrow">Tourist Behaviour Analytics using Big Data Technology</p>
-          <h1>GeoTrail - An App by Ken Richardson</h1>
-        </div>
-        <div class="toolbar">
-          <button id="playBtn" class="primary-button">Pause Stream</button>
-          <button id="refreshBtn" class="icon-button" title="Refresh analytics" aria-label="Refresh analytics">R</button>
-          <button id="downloadBtn" class="secondary-button">Export JSON</button>
-        </div>
-      </header>
-
-      <section id="overview" class="control-strip">
-        <label>
-          Dataset
-          <select id="datasetFilter"></select>
-        </label>
-        <label>
-          Location
-          <select id="locationFilter"></select>
-        </label>
-        <label>
-          Theme
-          <select id="themeFilter"></select>
-        </label>
-        <label>
-          Behaviour
-          <select id="behaviorFilter"></select>
-        </label>
-        <label>
-          Min faves
-          <input id="favesFilter" type="range" min="0" max="40" value="0">
-          <span id="favesValue">0</span>
-        </label>
-        <label class="search-label">
-          Search tags or text
-          <input id="searchFilter" type="search" placeholder="museum, river, sculpture">
-        </label>
+    <main class="main-content" id="overview">
+      <header class="topbar"><button class="mobile-menu" id="mobileMenu" aria-label="Open navigation">☰</button><div class="breadcrumb">INTELLIGENCE <span>/</span> <b>OVERVIEW</b></div><div class="topbar-right"><span class="live-pill"><i></i> LIVE DATASET</span><span class="date-label" id="todayLabel"></span><button class="export-btn" id="exportBtn">↧ <span>Export data</span></button></div></header>
+      <section class="hero-section">
+        <div class="hero-image"></div><div class="hero-content"><div class="eyebrow"><span></span> THE WORLD, IN PERSPECTIVE</div><h1>Explore beyond<br /><em>the map.</em></h1><p>A considered view of the places people love, the journeys they take, and the signals shaping tomorrow's destinations.</p><div class="hero-meta"><span>04 COUNTRIES</span><b>·</b><span>3,834 TRAVEL RECORDS</span><b>·</b><span>ONE CONNECTED VIEW</span></div></div>
+        <div class="hero-index"><span>FIELD NOTES</span><b>01<span>/</span>04</b><small>GLOBAL COLLECTION</small></div>
       </section>
 
-      <section class="hero-band">
-        <div class="hero-brand">
-          <img class="hero-logo" src="/assets/richardson-tech.png" alt="Richardson Tech logo">
-          <div>
-            <strong>GeoTrail - Explore Beyond the Map</strong>
-            <p>Streaming-style analytics over the England, American, Indian and Japanese tourism CSVs: places, tags, favorites, sentiment, inferred behavior, and content themes.</p>
-          </div>
-        </div>
-        <div class="hero-metric">
-          <span id="generatedAt">Loading</span>
-          <strong id="recordCount">0 rows</strong>
-        </div>
-      </section>
+      <section class="filter-bar" aria-label="Dashboard filters"><div class="filter-intro"><span class="filter-icon">⌕</span><div><b>Refine your view</b><small>Find the signal within the journey</small></div></div><label class="filter-control"><small>DESTINATION</small><select id="countryFilter"><option value="All">All destinations</option><option value="Indian Tourism">India</option><option value="Japan Tourism">Japan</option><option value="England Tourism">England</option><option value="American Tourism">United States</option></select></label><label class="filter-control"><small>LOCATION</small><select id="locationFilter"><option value="All">Everywhere</option></select></label><label class="filter-control"><small>TRAVEL THEME</small><select id="themeFilter"><option value="All">All themes</option></select></label><label class="filter-control"><small>VISITOR TYPE</small><select id="behaviorFilter"><option value="All">All profiles</option></select></label><label class="search-control"><span>⌕</span><input id="searchInput" type="search" placeholder="Search destinations, tags..." /></label><button class="reset-btn" id="resetFilters" title="Reset filters">↺</button></section>
 
-      <section class="metric-grid" aria-label="Key metrics">
-        <article class="metric"><span>Filtered records</span><strong id="records">-</strong></article>
-        <article class="metric"><span>Total faves</span><strong id="totalFaves">-</strong></article>
-        <article class="metric"><span>Sentiment</span><strong id="sentiment">-</strong></article>
-        <article class="metric"><span>Unique tags</span><strong id="uniqueTags">-</strong></article>
-      </section>
+      <section class="metrics-grid" aria-label="Key metrics"><article class="metric-card metric-primary"><div class="metric-top"><span>DESTINATION RECORDS</span><span class="metric-symbol">↗</span></div><strong id="metricRecords">—</strong><div class="metric-foot"><span class="metric-mark"></span> Curated travel observations</div></article><article class="metric-card"><div class="metric-top"><span>COLLECTIVE APPRECIATION</span><span class="metric-symbol">♡</span></div><strong id="metricFaves">—</strong><div class="metric-foot">Total recorded favourites</div></article><article class="metric-card"><div class="metric-top"><span>AVERAGE SENTIMENT</span><span class="metric-symbol">✳</span></div><strong id="metricSentiment">—</strong><div class="metric-foot"><span class="sentiment-track"><i id="sentimentBar"></i></span> Out of 100</div></article><article class="metric-card"><div class="metric-top"><span>DESTINATIONS MAPPED</span><span class="metric-symbol">⌖</span></div><strong id="metricLocations">—</strong><div class="metric-foot">Distinct location signals</div></article></section>
 
-      <section class="dashboard-grid">
-        <article class="panel large">
-          <div class="panel-header">
-            <div>
-              <span class="kicker">Dynamic attention graph</span>
-              <h2>Smooth location attention movement</h2>
-            </div>
-            <span class="pill" id="streamStatus">Stream running</span>
-          </div>
-          <div style="height:420px; position:relative;">
-          <canvas id="attentionChart" aria-label="Tourism attention bar graph"></canvas>
-          </div> 
-        </article>
+      <section class="section-heading" id="explore"><div><div class="eyebrow dark-eyebrow">01 — GEOGRAPHIC INTELLIGENCE</div><h2>Where the world <em>gathers.</em></h2><p>Explore the geography behind the attention. Select a country to focus the map.</p></div><div class="map-legend"><span><i class="legend-dot large"></i> High attention</span><span><i class="legend-dot"></i> Emerging signal</span></div></section>
+      <section class="map-panel"><div class="map-toolbar"><div><b id="mapTitle">Global destination atlas</b><small id="mapSubtitle">Four collections · Interactive geographic view</small></div><div class="map-actions"><span class="map-live"><i></i> MAP ACTIVE</span><button id="fitMap">⌖ Fit view</button></div></div><div id="tourismMap" class="tourism-map" role="application" aria-label="Interactive map showing tourism destination locations"></div><div class="map-footer"><div><span class="map-coord" id="mapCoordinates">GLOBAL VIEW · 20° N / 20° E</span><span id="mapFootnote">Select a marker to inspect destination activity</span></div><div class="map-scale"><span>LOW</span><i></i><span>HIGH ATTENTION</span></div></div></section>
 
-        <article id="hotspots" class="panel map-panel">
-          <div class="panel-header">
-            <div>
-              <span class="kicker">Interactive hotspots</span>
-              <h2>Tourism attention map</h2>
-            </div>
-          </div>
-          <div id="hotspotMap" class="hotspot-map" aria-label="Tourism hotspot map"></div>
-          <div id="selectedHotspot" class="selection-box"></div>
-        </article>
+      <section class="analysis-grid" id="signals"><article class="panel chart-panel"><div class="panel-heading"><div><div class="eyebrow dark-eyebrow">02 — DESTINATION RANKING</div><h3>Places in focus</h3><p>Where the most travel records are concentrated.</p></div><span class="panel-index">A / 04</span></div><div class="chart-wrap"><canvas id="attentionChart" aria-label="Destination attention ranking chart"></canvas></div><div class="panel-note">RANKED BY RECORD VOLUME <span>↗</span></div></article><article class="panel theme-panel"><div class="panel-heading"><div><div class="eyebrow dark-eyebrow">03 — TRAVEL INTEREST</div><h3>Themes that move us</h3><p>What draws travellers into the world.</p></div><span class="panel-index">B / 04</span></div><div id="themeList" class="theme-list"></div><div class="panel-note">MOST FREQUENT THEMES <span>↗</span></div></article></section>
 
-        <article class="panel">
-          <div class="panel-header">
-            <div>
-              <span class="kicker">Tag intelligence</span>
-              <h2>Discovery cloud</h2>
-            </div>
-          </div>
-          <div id="tagCloud" class="tag-cloud"></div>
-        </article>
-      </section>
+      <section class="section-heading compact-heading" id="segments"><div><div class="eyebrow dark-eyebrow">04 — HUMAN PATTERNS</div><h2>Every traveller has a <em>story.</em></h2><p>Behavioural signals reveal the different ways people experience a place.</p></div><div class="section-aside">A CLOSER LOOK AT<br /><b>VISITOR PROFILES</b></div></section>
+      <section class="behavior-grid" id="behaviorGrid"></section>
 
-      <section id="stream" class="dashboard-grid">
-        <article class="panel">
-          <div class="panel-header">
-            <div>
-              <span class="kicker">Live-style ingestion</span>
-              <h2>Tourist content feed</h2>
-            </div>
-            <span id="streamCounter" class="pill">0 events</span>
-          </div>
-          <div id="liveFeed" class="live-feed"></div>
-        </article>
-
-        <article class="panel">
-          <div class="panel-header">
-            <div>
-              <span class="kicker">Co-occurrence</span>
-              <h2>Tags that travel together</h2>
-            </div>
-          </div>
-          <div id="cooccurrenceList" class="signal-list"></div>
-        </article>
-      </section>
-
-      <section id="segments" class="panel full-width">
-        <div class="panel-header">
-          <div>
-            <span class="kicker">Behavior segmentation</span>
-            <h2>Click a segment to drill into records</h2>
-          </div>
-        </div>
-        <div id="segmentGrid" class="segment-grid"></div>
-      </section>
-
-      <section class="dashboard-grid">
-        <article class="panel">
-          <div class="panel-header">
-            <div>
-              <span class="kicker">Prediction</span>
-              <h2>Next ingestion windows</h2>
-            </div>
-          </div>
-          <div id="forecastList" class="forecast-list"></div>
-        </article>
-
-        <article class="panel">
-          <div class="panel-header">
-            <div>
-              <span class="kicker">Alerts</span>
-              <h2>Anomaly monitor</h2>
-            </div>
-          </div>
-          <div id="anomalyList" class="signal-list"></div>
-        </article>
-      </section>
-
-      <section id="pipeline" class="panel full-width">
-        <div class="panel-header">
-          <div>
-            <span class="kicker">Big data technology layer</span>
-            <h2>Pipeline simulator</h2>
-          </div>
-          <button id="runPipelineBtn" class="primary-button">Run Pipeline</button>
-        </div>
-        <div class="pipeline">
-          <div class="pipe-node active"><strong>CSV ingest</strong><span id="pipeIngest">-</span></div>
-          <div class="pipe-node"><strong>Clean & enrich</strong><span>tags, themes, sentiment</span></div>
-          <div class="pipe-node"><strong>Aggregate</strong><span>locations, segments, faves</span></div>
-          <div class="pipe-node"><strong>Detect</strong><span>spikes and low sentiment</span></div>
-          <div class="pipe-node"><strong>Recommend</strong><span>campaign actions</span></div>
-        </div>
-      </section>
-</main>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="/app.js"></script>
-    <script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("/service-worker.js");</script>
-  </body>
+      <section class="lower-grid"><article class="panel feed-panel"><div class="panel-heading"><div><div class="eyebrow dark-eyebrow">05 — THE TRAVEL JOURNAL</div><h3>Signals from the field</h3><p>High-engagement records from the current collection.</p></div><span class="live-pill"><i></i> LIVE FEED</span></div><div id="liveFeed" class="live-feed"></div></article><article class="panel insight-panel"><div class="eyebrow dark-eyebrow">06 — EDITOR'S OBSERVATIONS</div><h3>What the data <em>suggests.</em></h3><div id="insightList" class="insight-list"></div><div class="method-note"><b>ABOUT THESE SIGNALS</b><p>Insights describe patterns in the bundled dataset. Forecasts and high-engagement flags are heuristic indicators, not validated predictions.</p></div></article></section>
+      <footer class="footer"><a class="footer-brand" href="#overview">GEOTRAIL<span>✳</span></a><span>EXPLORE BEYOND THE MAP.</span><div>ENGINEERED WITH INTENT BY <a href="https://linkedin.com/in/kennykrichardson" target="_blank" rel="noreferrer">KENNY RICHARDSON ↗</a></div></footer>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="/app.js"></script>
+</body>
 </html>

@@ -1,411 +1,154 @@
-# GeoTrail - Explore Beyond the map.
+# 🌍 GeoTrail
 
-A full-stack tourism analytics app with a modern interactive dashboard UI, backend API, real CSV dataset ingestion, and an analytics pipeline for visitor behavior, content engagement, inferred tourist intent, hotspot detection, segmentation, anomaly detection, and forecasting.
+### ✨ Every traveller has a story.
 
-## Features
+GeoTrail is a tourism intelligence dashboard that turns destination and traveller data into an interactive, visual exploration experience. It brings destination signals, visitor patterns, travel interests, and editorial observations together in one responsive interface.
 
-- Interactive dashboard for tourism content engagement, hotspots, tags, inferred behavior, sentiment, and recommendations.
-- Backend API built with Python standard library modules, so no package installation is required.
-- Big-data-inspired analytics pipeline with CSV ingestion, enrichment, aggregation, behavioral segmentation, anomaly detection, co-occurrence mining, and forecasting.
-- Combined tourism analytics loaded from `data/England Tourism.csv` and `data/American Tourism.csv`.
-- App-like interactions: server-side filters, pulsing hotspot map, animated live feed, clickable tag cloud, segment drilldowns, and pipeline simulator.
-- Export current analytics as JSON.
+## 🚀 Features
 
-## Project Structure
-# 🌍 GeoTrail — Explore Beyond the Map
+- 🗺️ **Interactive destination map** to explore tourism locations.
+- 📊 **Tourism overview metrics** for a quick snapshot of the available records.
+- 🧳 **Traveller profiles** that surface patterns in visitor behaviour.
+- 🔴 **Live location feed** that presents incoming destination signals in a continuously updating stream.
+- 📈 **Destination and travel-interest charts** for comparing locations and themes.
+- 💡 **Editorial observations** that add context to the displayed data.
+- 📥 **JSON export** for taking the underlying records elsewhere.
+- 📱 **Progressive Web App support** for an installable experience and offline-friendly asset caching.
 
-> **A modern tourism analytics platform** combining interactive visualizations, real-world datasets, and an intelligent analytics pipeline to uncover travel trends, visitor behavior, and destination insights.
+## 🧰 Tech stack
 
-![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python)
-![Status](https://img.shields.io/badge/Status-Active-success)
-![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red)
+| Technology | Purpose |
+|---|---|
+| HTML, CSS, JavaScript | Core frontend |
+| [Vite](https://vite.dev/) | Development server and production builds |
+| [Leaflet](https://leafletjs.com/) | Interactive maps |
+| [Chart.js](https://www.chartjs.org/) | Data visualisations |
 
----
+## ⚡ Getting started
 
-# ✨ Features
+### 📋 Requirements
 
-- 🗺️ Interactive tourism analytics dashboard
-- 📊 Real-time engagement insights and hotspot visualization
-- 📈 Visitor behavior analysis and trend forecasting
-- 🧠 Intelligent tourist intent inference
-- 🔥 Popular destination and content hotspot detection
-- 🎯 Behavioral segmentation
-- 🚨 Anomaly detection and recommendation engine
-- 📁 CSV dataset ingestion pipeline
-- 📦 Export analytics as JSON
-- ⚡ Dependency-free Python backend
+- Node.js (a current LTS release is recommended)
+- npm
 
----
-
-# 🧩 Tech Stack
-
-### Frontend
-- HTML5
-- CSS3
-- JavaScript
-
-### Backend
-- Python
-- Python Standard Library HTTP Server
-
-### Analytics
-- CSV Processing
-- Data Aggregation
-- Forecasting
-- Behavioral Segmentation
-- Co-occurrence Mining
-- Recommendation Engine
-
----
-
-# 📂 Project Structure
-
-```text
-.
-├── data/
-│   ├── American Tourism.csv
-│   ├── England Tourism.csv
-│   ├── Indian Tourism.csv
-│   └── Japan Tourism.csv
-│
-├── public/
-│   ├── app.js
-│   ├── index.html
-│   └── styles.css
-│
-├── src/
-│   └── analytics.py
-│
-├── package.json
-├── README.md
-├── server.py
-├── start_geotrail.bat
-└── start_geotrail.ps1
-```
-
----
-
-# 🚀 Running Locally
-
-Start the backend server:
+### 1. 📦 Install dependencies
 
 ```bash
-python server.py
+npm install
 ```
 
-Then open:
-
-```
-http://localhost:5000
-```
-
-If port **5000** is unavailable:
-
-```powershell
-$env:PORT=5000
-python server.py
-```
-
----
-
-# 🌐 API Endpoints
-
-## ❤️ Health Check
-
-```http
-GET /api/health
-```
-
----
-
-## 📄 Sample Dataset
-
-```http
-GET /api/dataset
-```
-
-Returns the sample tourism dataset.
-
----
-
-## 📊 Analytics
-
-```http
-GET /api/analytics
-```
-
-Runs the analytics engine using the England and American tourism datasets.
-
-### Optional Query Parameters
-
-```text
-location=London
-theme=Architecture
-behavior=Urban observers
-minFaves=10
-search=museum
-```
-
----
-
-# 🧠 Analytics Pipeline
-
-GeoTrail automatically performs:
-
-- 📂 CSV Parsing & Normalization
-- 🧭 Location Detection
-- 🎨 Theme Classification
-- ❤️ Sentiment Analysis
-- 👤 Tourist Behavior Inference
-- 🔥 Hotspot Detection
-- 🏷️ Tag Intelligence
-- 📊 Theme Aggregation
-- 🤝 Co-occurrence Mining
-- 📈 Forecast Generation
-- 🚨 Engagement Anomaly Detection
-- 💡 Intelligent Recommendations
-
----
-
-# 👥 Behavioral Segments
-
-GeoTrail classifies users into categories such as:
-
-- 🌆 Urban Observers
-- 🌄 Scenic Wanderers
-- 🏛️ Cultural Explorers
-- ❤️ High Engagement Visitors
-- 📸 Landmark Seekers
-- 👀 Casual Browsers
-
----
-
-# ▶️ Run Analytics Directly
+### 2. 💻 Start the development server
 
 ```bash
-python src/analytics.py "data/England Tourism.csv"
-python src/analytics.py "data/American Tourism.csv"
-python src/analytics.py "data/Indian Tourism.csv"
-python src/analytics.py "data/Japan Tourism.csv"
+npm run dev
 ```
 
+Vite will print the local development URL in the terminal.
+
+### 3. 🏗️ Create a production build
+
+```bash
+npm run build
+```
+
+### 4. 🔍 Preview the production build
+
+```bash
+npm run preview
+```
 ---
 
 # 📸 Screenshots
 
 ## 🖥️ Dashboard Overview
 
-![Dashboard](screenshots/geotrail_dashboard.png)
+![Dashboard](screenshots/geotrail-dashboard.png)
 
 ---
 
 ## 🗺️ Tourism Heatmap
 
-![Heatmap](screenshots/geotrail_interactive_map.png)
-
----
-
-## ⚙️ Analytics Pipeline
-
-![Pipeline](screenshots/geotrail_analytic_pipeline.png)
+![Heatmap](screenshots/geotrail-maps.png)
 
 ---
 
 ## 📡 Live Data Feed
 
-![Feed](screenshots/geotrail_live_feed.png)
+![Feed](screenshots/geotrail-live-feed.png)
 
 ---
 
 ## 📈 Dynamic Analytics Graph
 
-![Graph](screenshots/geotrail_dynamic_graph.png)
+![Graph](screenshots/geotrail-charts.png)
 
 ---
 
-# 📱 Mobile Installation
+## 📁 Project structure
 
-GeoTrail behaves like a Progressive Web App (PWA).
+A typical project layout looks like this:
 
-1. Start the Python server.
-2. Open the application on your mobile device using your PC's local IP.
-3. Use **Add to Home Screen** from your browser.
-
-> Native Android builds (APK) are not included in this repository.
-
----
-
-# ☁️ Production Scaling
-
-GeoTrail is intentionally dependency-free for local execution, but its architecture scales naturally to enterprise data platforms.
-
-Potential upgrades include:
-
-- ⚡ Apache Kafka
-- ☁️ Google Pub/Sub
-- 🌊 Apache Flink
-- 🔥 Apache Spark / PySpark
-- 🪣 Amazon S3
-- 🏔️ Snowflake
-- 🗄️ PostgreSQL
-- 📦 ClickHouse
-- 🤖 MLflow
-- 📈 Prophet / XGBoost
-
----
-
-# 👨‍💻 Author
-
-**Kenny Richardson Kodipally**
-
-AI Engineer • Full-Stack Developer • Builder of intelligent software
-
----
-
-## ⭐ If you found GeoTrail interesting...
-
-Give the repository a ⭐ and consider following for future AI, analytics, and developer tooling projects.
 ```text
 .
-+-- data/
-|   +-- American Tourism.csv
-|   +-- England Tourism.csv
-|   +-- Indian Tourism.csv
-|   +-- Japan Tourism.csv
-+-- public/
-|   +-- app.js
-|   +-- index.html
-|   +-- styles.css
-+-- src/
-|   +-- analytics.py
-+-- package.json
-+-- README.md
-+-- server.py
-+-- start_geotrail.bat
-+-- start_geotrail.ps1
+├── public/
+│   ├── data/
+│   │   └── tourism-records.json
+│   └── assets/
+│       └── geotrail-bg.jpg
+├── index.html
+├── app.js
+├── styles.css
+├── package.json
+└── README.md
 ```
 
-## Run Locally
+Your local project may contain additional configuration, icons, service-worker files, or source directories. Keep those files in place when building or deploying.
 
-The app now runs on the Python backend in `server.py`. If `python` is on your PATH:
+## 🧭 Tourism data
 
-```bash
-python server.py
-```
-
-Open:
+The dashboard reads its tourism records from:
 
 ```text
-http://localhost:5000
+public/data/tourism-records.json
 ```
 
-If port `5000` is busy:
+Keep the JSON structure consistent with the fields expected by the application. When adding or editing records:
 
-```powershell
-$env:PORT=5000
-python server.py
-```
+1. ✅ Use valid JSON.
+2. 🧩 Preserve the field names and data types already used by the dataset.
+3. 📍 Check that destination names and geographic coordinates are valid.
+4. 🧪 Rebuild and test the dashboard after changing the data.
 
-## API
+The current dataset has included destinations from India, Japan, England, and the United States. The actual destinations shown depend on the records present in the data file.
 
-## Screenshots
+## ☁️ Deployment
 
-### Dashboard Overview
-![Dashboard](screenshots/geotrail_dashboard.png)
+GeoTrail can be deployed to any static hosting provider that supports a Vite production build.
 
-### Tourism Heatmap
-![Heatmap](screenshots/geotrail_interactive_map.png)
+1. 📦 Install dependencies.
+2. 🏗️ Run `npm run build`.
+3. 🚀 Deploy the generated `dist/` directory.
+4. ⚙️ Configure the hosting provider to serve `index.html` for application routes if your deployment setup requires it.
 
-### Analytics Pipeline
-![Pipeline](screenshots/geotrail_analytic_pipeline.png)
+Set the deployment base path in Vite if the app is hosted under a subdirectory rather than at the domain root.
 
-### Live-Style Ingestion Pipeline
-![Pipeline](screenshots/geotrail_live_feed.png)
+## 🌐 Browser support
 
-### Dynamic Attention Graph
-![Graph](screenshots/geotrail_dynamic_graph.png)
+Use a modern browser with JavaScript enabled. Map tiles and any externally hosted map resources require an internet connection. Offline behaviour depends on the service worker and the assets successfully cached by the application.
 
-- Dashboard Overview
-- Tourism Hotspot Map
-- Forecast Charts
-- Analytic Pipeline
-- Live-Style Ingestion
-- Dynamic Allocation Graph
+## 👨‍💻 Credits
 
-### Health
+Designed and engineered with intent by **Kenny Richardson**.
 
-```http
-GET /api/health
-```
+- 🐙 GitHub: [kennykrichardson](https://github.com/kennykrichardson)
+- 💼 LinkedIn: [Kenny Richardson](https://linkedin.com/in/kennykrichardson)
 
-### Sample Dataset
+## 📄 License
 
-```http
-GET /api/dataset
-```
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
-Returns the sample CSV.
+---
 
-### Default Analytics
-
-```http
-GET /api/analytics
-```
-
-Runs the Python analytics pipeline over the England and American tourism CSV files together.
-
-Optional query parameters:
-
-```text
-location=London
-theme=Architecture
-behavior=Urban observers
-minFaves=10
-search=museum
-```
-
-## Analytics Pipeline
-
-The pipeline in `src/analytics.py` performs:
-
-- CSV parsing and record normalization.
-- Location, theme, sentiment, richness, and behavior inference from titles, descriptions, tags, and favorites.
-- Hotspot, theme, behavior, tag, and co-occurrence aggregation.
-- Behavioral segmentation:
-  - Casual browsers
-  - Urban observers
-  - Scenic wanderers
-  - Cultural explorers
-  - High-engagement viewers
-  - Landmark seekers
-- Future ingestion-window forecast using batch history.
-- Engagement spike and low-sentiment anomaly detection.
-- Operational recommendations based on hotspots, content themes, behavior mix, and tag intelligence.
-
-You can run the pipeline directly:
-
-```bash
-python src/analytics.py "data/England Tourism.csv"
-python src/analytics.py "data/American Tourism.csv"
-python src/analytics.py "data/Indian Tourism.csv"
-python src/analytics.py "data/Japan Tourism.csv"
-
-```
-
-## Phone Install
-
-The project is now a PWA-style local web app. Start the Python server, open `http://localhost:5000` on your phone if it can reach your PC, then use your browser's install/add-to-home-screen option. A native APK requires Android SDK/Gradle, which are not included in this workspace.
-
-## Big Data Technology Extension Path
-
-This app is intentionally dependency-free for easy local execution, but the architecture maps cleanly to a production big data stack:
-
-- Replace CSV file ingestion with Kafka, Kinesis, or Pub/Sub event streams.
-- Move batch processing into Spark, PySpark, Flink, or Beam.
-- Store raw and curated datasets in S3, ADLS, GCS, HDFS, or a lakehouse table format.
-- Serve aggregates from ClickHouse, BigQuery, Snowflake, Cassandra, MongoDB, or PostgreSQL.
-- Replace the simple trend forecast with Prophet, ARIMA, XGBoost, or an MLflow-managed model.
-- Add authentication, dataset governance, and scheduled report generation.
-
-
-## Built by Kenny Richardson Kodipally.
+<p align="center">
+  🌍 <strong>GeoTrail</strong> · Every traveller has a story.
+</p>

@@ -1,21 +1,20 @@
 {
-  "name": "tourist-behaviour-big-data",
-  "version": "1.0.0",
-  "description": "Analyzing Tourist Behaviour using Big Data Technology - dashboard, API, analytics pipeline, and sample dataset.",
-  "main": "server.py",
+  "name": "geotrail-tourism-intelligence",
+  "version": "3.0.0",
+  "private": true,
+  "description": "GeoTrail — a browser-based tourism intelligence experience by Kenny Richardson.",
+  "type": "module",
   "scripts": {
-    "start": "python server.py",
-    "analyze:england": "python src/analytics.py \"data/England Tourism.csv\"",
-    "analyze:american": "python src/analytics.py \"data/American Tourism.csv\"",
-    "analyze:indian": "python src/analytics.py \"data/Indian Tourism.csv\"",
-    "analyze:japanese": "python src/analytics.py \"data/Japan Tourism.csv\""
-    
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0"
   },
-  "keywords": [
-    "tourism",
-    "big-data",
-    "analytics",
-    "dashboard"
-  ],
+  "dependencies": {
+    "chart.js": "^4.4.7",
+    "leaflet": "^1.9.4"
+  },
+  "devDependencies": {
+    "vite": "^6.4.1"
+  },
   "license": "MIT"
 }

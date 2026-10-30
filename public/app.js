@@ -1,454 +1,120 @@
-let currentAnalytics = null;
-let streamTimer = null;
-let streamIndex = 0;
-let streamEvents = 0;
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { Chart, registerables } from 'chart.js';
+import './styles.css';
+Chart.register(...registerables);
 
-const filters = {
-  dataset: "All",
-  location: "All",
-  theme: "All",
-  behavior: "All",
-  minFaves: 0,
-  search: ""
+const DATA_URL = '/data/tourism-records.json';
+const COUNTRY_META = {
+  'Indian Tourism': { label:'India', flag:'🇮🇳', center:[22.5,79], zoom:4.6, bounds:[[6,67],[37,98]] },
+  'Japan Tourism': { label:'Japan', flag:'🇯🇵', center:[36.2,138], zoom:5, bounds:[[24,122],[46,146]] },
+  'England Tourism': { label:'England', flag:'🇬🇧', center:[52.8,-1.8], zoom:6, bounds:[[49.7,-6.5],[55.9,2.2]] },
+  'American Tourism': { label:'United States', flag:'🇺🇸', center:[39,-98], zoom:3.7, bounds:[[24,-126],[50, -66]] }
 };
-
-const formatNumber = value => Number(value || 0).toLocaleString();
-
-function setText(id, value) {
-  document.getElementById(id).textContent = value;
+// Coordinates are explicit geographic anchors for the location labels in the bundled dataset.
+const GEO = {
+  'India Tourism Signal':[22.5,79], 'Andhra Pradesh':[15.9,79.7], 'Arunachal Pradesh':[28.2,94.7], Assam:[26.2,92.9], Bihar:[25.9,85.3], Goa:[15.3,74], Gujarat:[22.3,71.7], 'Himachal Pradesh':[31.1,77.2], Karnataka:[15.3,75.7], Kerala:[10.5,76.2], 'Madhya Pradesh':[23.5,78.5], Maharashtra:[19.7,75.7], Meghalaya:[25.5,91.3], Odisha:[20.9,84.5], Punjab:[31,75.3], Rajasthan:[26.8,73.8], Sikkim:[27.5,88.5], 'Tamil Nadu':[11.1,78.7], Telangana:[17.9,79.1], 'Uttar Pradesh':[27,80.8], Uttarakhand:[30.1,79], 'West Bengal':[23.5,87.8],
+  Tokyo:[35.6762,139.6503], Kyoto:[35.0116,135.7681], Osaka:[34.6937,135.5023], Nara:[34.6851,135.8048], Nagoya:[35.1815,136.9066], Okinawa:[26.2124,127.6809], Sapporo:[43.0618,141.3545], Hakone:[35.2324,139.1069], Yokohama:[35.4437,139.638], Hiroshima:[34.3853,132.4553], 'Mount Fuji':[35.3606,138.7274], Fukuoka:[33.5904,130.4017], Sendai:[38.2682,140.8694],
+  London:[51.5072,-.1276], Manchester:[53.4808,-2.2426], Liverpool:[53.4084,-2.9916], Birmingham:[52.4862,-1.8904], Bath:[51.3811,-2.359], Oxford:[51.752,-1.2577], Cambridge:[52.2053,.1218], Brighton:[50.8225,-.1372], Cornwall:[50.266,-5.0527], 'Lake District':[54.4609,-3.0886], Newcastle:[54.9783,-1.6178], York:[53.959,-1.0815], Bristol:[51.4545,-2.5879], Leeds:[53.8008,-1.5491], Nottingham:[52.9548,-1.1581], 'British Museum':[51.5194,-.127], 'Tower Bridge':[51.5055,-.0754],
+  California:[36.7783,-119.4179], Utah:[39.321,-111.0937], Arizona:[34.0489,-111.0937], Florida:[27.6648,-81.5158], Brooklyn:[40.6782,-73.9442], Central:[39.5,-98.35], Empire:[40.7484,-73.9857], Nevada:[38.8026,-116.4194], Mount:[37.8651,-119.5383], Niagara:[43.0962,-79.0377], Colorado:[39.5501,-105.7821], Washington:[47.7511,-120.7401], Statue:[40.6892,-74.0445], Times:[40.758,-73.9855], Wyoming:[43.076,-107.2903]
+};
+const $ = id => document.getElementById(id);
+const state = { dataset:'All', location:'All', theme:'All', behavior:'All', search:'' };
+let records=[], map, markerLayer, chart, toastTimer;
+let streamTimer=null, streamIndex=0, feedRows=[];
+const fmt = n => Number(n||0).toLocaleString('en-US');
+const avg = (rows,key) => rows.length ? rows.reduce((s,r)=>s+Number(r[key]||0),0)/rows.length : 0;
+const escapeHTML = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function notify(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2300)}
+function countryLabel(ds){return COUNTRY_META[ds]?.label||'Global'}
+function filteredRows(){return records.filter(r=>(state.dataset==='All'||r.dataset===state.dataset)&&(state.location==='All'||r.location===state.location)&&(state.theme==='All'||r.theme===state.theme)&&(state.behavior==='All'||r.behavior===state.behavior)&&(!state.search||[r.title,r.description,r.location,r.theme,r.behavior,r.dataset,...(r.tags||[])].join(' ').toLowerCase().includes(state.search.toLowerCase())))}
+function groupBy(rows,key){const m=new Map();rows.forEach(r=>{const k=r[key]||'Unclassified';m.set(k,(m.get(k)||[]).concat(r))});return [...m].map(([name,items])=>({name,items,count:items.length,avgFaves:avg(items,'faves'),avgSentiment:avg(items,'sentiment')})).sort((a,b)=>b.count-a.count)}
+function fillSelect(id,values,placeholder){const el=$(id),old=el.value;el.innerHTML=`<option value="All">${placeholder}</option>`+values.map(v=>`<option value="${escapeHTML(v)}">${escapeHTML(v)}</option>`).join('');el.value=values.includes(old)?old:'All'}
+function refreshOptions(){const base=records.filter(r=>state.dataset==='All'||r.dataset===state.dataset);fillSelect('locationFilter',[...new Set(base.map(r=>r.location))].sort(),'Everywhere');fillSelect('themeFilter',[...new Set(base.map(r=>r.theme))].sort(),'All themes');fillSelect('behaviorFilter',[...new Set(base.map(r=>r.behavior))].sort(),'All profiles');$('locationFilter').value=state.location;$('themeFilter').value=state.theme;$('behaviorFilter').value=state.behavior}
+function initMap(){map=L.map('tourismMap',{scrollWheelZoom:false,zoomControl:true,worldCopyJump:true}).setView([24,35],2);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors'}).addTo(map);markerLayer=L.layerGroup().addTo(map);map.on('click',e=>$('mapCoordinates').textContent=`${e.latlng.lat.toFixed(3)}° / ${e.latlng.lng.toFixed(3)}°`)}
+function drawMap(rows){markerLayer.clearLayers();const groups=groupBy(rows,'location');const mapped=groups.map(g=>({...g,coords:GEO[g.name]})).filter(g=>g.coords);groups.filter(g=>!g.coords).forEach(g=>console.warn('No map coordinate configured for location:',g.name));const max=Math.max(1,...mapped.map(g=>g.count));mapped.forEach(g=>{const size=9+Math.round(g.count/max*10);const icon=L.divIcon({className:'',html:`<span class="map-marker" style="width:${size+12}px;height:${size+12}px"><i></i></span>`,iconSize:[size+12,size+12],iconAnchor:[(size+12)/2,(size+12)/2]});const marker=L.marker(g.coords,{icon}).bindPopup(`<div class="map-popup"><b>${escapeHTML(g.name)}</b><span>${fmt(g.count)} travel records · ${fmt(Math.round(g.items.reduce((s,r)=>s+Number(r.faves||0),0)))} favourites</span><small>${escapeHTML(countryLabel(g.items[0].dataset).toUpperCase())} · ${g.avgSentiment.toFixed(1)} SENTIMENT</small></div>`);marker.addTo(markerLayer);marker.on('click',()=>{$('mapCoordinates').textContent=`${g.coords[0].toFixed(3)}° / ${g.coords[1].toFixed(3)}°`;$('mapFootnote').textContent=`${g.name} · ${fmt(g.count)} records · ${g.avgSentiment.toFixed(1)} average sentiment`})});const datasets=state.dataset==='All'?Object.keys(COUNTRY_META):[state.dataset];if(state.dataset==='All'){map.setView([27,35],2,{animate:true});$('mapTitle').textContent='Global destination atlas';$('mapSubtitle').textContent=`${mapped.length} mapped location signals · Four country collections`;$('mapCoordinates').textContent='GLOBAL VIEW · 27° N / 35° E'}else{const meta=COUNTRY_META[state.dataset];map.fitBounds(meta.bounds,{padding:[20,20],maxZoom:meta.zoom+1,animate:true});$('mapTitle').textContent=`${meta.label} destination atlas`;$('mapSubtitle').textContent=`${mapped.length} mapped location signals · ${meta.flag} ${meta.label}`;$('mapCoordinates').textContent=`${meta.label.toUpperCase()} · ${meta.center[0].toFixed(1)}° / ${meta.center[1].toFixed(1)}°`}$('mapFootnote').textContent='Select a marker to inspect destination activity';setTimeout(()=>map.invalidateSize(),100)}
+function drawChart(groups){const data=groups.slice(0,9);if(chart)chart.destroy();chart=new Chart($('attentionChart'),{type:'bar',data:{labels:data.map(x=>x.name),datasets:[{data:data.map(x=>x.count),backgroundColor:data.map((_,i)=>i===0?'#DC143C':'#DC143C'),borderRadius:2,borderSkipped:false,maxBarThickness:25}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#171717',titleColor:'#FFFDF6',bodyColor:'#FFFDF6',padding:11,displayColors:false,callbacks:{label:c=>`${fmt(c.raw)} records`}}},scales:{x:{beginAtZero:true,grid:{color:'rgba(23,23,23,.08)'},ticks:{color:'#171717',font:{family:'DM Mono',size:9}}},y:{grid:{display:false},ticks:{color:'#171717',font:{family:'DM Sans',size:10}}}}}})}
+function drawThemes(groups){$('themeList').innerHTML=groups.slice(0,7).map((g,i)=>`<div class="theme-row"><label title="${escapeHTML(g.name)}">${escapeHTML(g.name)}</label><div class="theme-track"><i style="width:${Math.max(2,g.count/(groups[0]?.count||1)*100)}%"></i></div><b>${fmt(g.count)}</b></div>`).join('')||'<div class="empty-state">No theme signals in this selection.</div>'}
+function drawBehaviors(groups,total){$('behaviorGrid').innerHTML=groups.slice(0,8).map((g,i)=>`<article class="behavior-card" tabindex="0" role="button" data-behavior="${escapeHTML(g.name)}"><span class="number">PROFILE / 0${i+1}</span><strong>${Math.round(g.count/Math.max(total,1)*100)}%</strong><h4>${escapeHTML(g.name)}</h4><p>${fmt(g.count)} records · ${g.avgSentiment.toFixed(1)} sentiment average</p></article>`).join('')||'<div class="empty-state">No visitor profiles match the current filters.</div>';document.querySelectorAll('.behavior-card').forEach(card=>{const apply=()=>{state.behavior=card.dataset.behavior;$('behaviorFilter').value=state.behavior;render()};card.addEventListener('click',apply);card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();apply()}})})}
+function pushStreamItem(record){
+  const host=$('liveFeed');
+  if(!host)return;
+  const node=document.createElement('div');
+  node.className='feed-item feed-item-new';
+  node.innerHTML=`
+    <span class="feed-number">${String((streamIndex%Math.max(feedRows.length,1))+1).padStart(2,'0')}</span>
+    <div class="feed-copy">
+      <b>${escapeHTML(record.title||record.location||'New tourism signal')}</b>
+      <small>${escapeHTML(record.location||'Unclassified')} · ${escapeHTML(record.theme||'General')} · ${escapeHTML(countryLabel(record.dataset))}</small>
+    </div>
+    <span class="feed-score">♡ ${fmt(Math.round(record.faves||0))}</span>
+  `;
+  host.prepend(node);
+  while(host.children.length>8)host.lastElementChild.remove();
 }
 
-function queryString() {
-  const params = new URLSearchParams();
-  Object.entries(filters).forEach(([key, value]) => {
-    if (value !== "" && value !== "All" && Number(value) !== 0) params.set(key, value);
+function drawFeed(rows){
+  if(streamTimer){clearInterval(streamTimer);streamTimer=null;}
+  streamIndex=0;
+  const host=$('liveFeed');
+  const buckets=new Map();
+
+  // Interleave records by destination so the live stream keeps surfacing
+  // different locations instead of exhausting one location at a time.
+  rows.forEach(record=>{
+    const location=record.location||'Unclassified';
+    if(!buckets.has(location))buckets.set(location,[]);
+    buckets.get(location).push(record);
   });
-  return params.toString();
-}
 
-async function fetchAnalytics() {
-  const query = queryString();
-  const response = await fetch(`/api/analytics${query ? `?${query}` : ""}`);
-  if (!response.ok) throw new Error("Unable to load analytics");
-  return response.json();
-}
-
-function populateSelect(id, values, selected) {
-  const select = document.getElementById(id);
-  const prior = select.value || selected;
-  select.innerHTML = values.map(value => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join("");
-  select.value = values.includes(prior) ? prior : selected;
-}
-
-function escapeHtml(value) {
-  return String(value).replace(/[&<>"']/g, char => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;"
-  }[char]));
-}
-
-let attentionChart = null;
-
-function drawAttentionBars(series) {
-  const canvas = document.getElementById("attentionChart");
-
-  const rows = (series || []).slice(0, 10);
-
-  const labels = rows.map(row => row.name);
-  const values = rows.map(row => row.count);
-
-  if (attentionChart) {
-    attentionChart.destroy();
+  const locations=[...buckets.values()];
+  locations.forEach(list=>list.sort((a,b)=>Number(b.faves||0)-Number(a.faves||0)));
+  feedRows=[];
+  const longest=Math.max(0,...locations.map(list=>list.length));
+  for(let index=0;index<longest;index++){
+    locations.forEach(list=>{if(list[index])feedRows.push(list[index]);});
   }
 
-  attentionChart = new Chart(canvas, {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [{
-        label: "Attention Volume",
-        data: values,
-        backgroundColor: "#CC3536",
-        borderRadius: 10,
-        borderSkipped: false
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-
-      plugins: {
-        legend: {
-          labels: {
-            color: "#D9D9D9"
-          }
-        },
-
-        tooltip: {
-          backgroundColor: "#1B1B1B",
-          titleColor: "#FFFFFF",
-          bodyColor: "#D9D9D9"
-        }
-      },
-
-      scales: {
-        x: {
-          ticks: {
-            color: "#000000"
-          },
-          grid: {
-            color: "rgba(255,255,255,0.05)"
-          }
-        },
-
-        y: {
-          beginAtZero: true,
-          ticks: {
-            color: "#000000"
-          },
-          grid: {
-            color: "rgba(255,255,255,0.08)"
-          }
-        }
-      }
-    }
-  });
-}
-
-
-function renderHotspots(rows, mapInfo) {
-  const map = document.getElementById("hotspotMap");
-  const max = Math.max(...rows.map(row => row.count), 1);
-  if (!rows.length) {
-    map.innerHTML = '<div class="empty-state">No hotspots match the current filters.</div>';
-    document.getElementById("selectedHotspot").innerHTML = "<strong>No hotspot selected</strong>";
+  if(!host)return;
+  host.innerHTML='';
+  if(!feedRows.length){
+    host.innerHTML='<div class="empty-state">No records match these filters.</div>';
     return;
   }
-  map.className = `hotspot-map map-${mapInfo?.kind || "combined"}`;
-  map.innerHTML = `
-    ${renderMapSvg(mapInfo?.kind || "combined")}
-    <div class="map-title">${escapeHtml(mapInfo?.title || "Tourism attention map")}</div>
-    ${rows.map(row => `
-    <button class="hotspot" style="left:${row.x}%; top:${row.y}%; --size:${28 + (row.count / max) * 46}px" data-name="${escapeHtml(row.name)}">
-      <span>${escapeHtml(row.name)}</span>
-    </button>
-    `).join("")}
-  `;
 
-  map.querySelectorAll(".hotspot").forEach(button => {
-    button.addEventListener("click", () => {
-      const row = rows.find(item => item.name === button.dataset.name);
-      document.getElementById("selectedHotspot").innerHTML = `
-        <strong>${escapeHtml(row.name)}</strong>
-        <span>${row.count} records | ${row.avgFaves} avg faves | ${row.avgSentiment}/100 sentiment</span>
-      `;
-    });
-  });
+  // Seed the panel with the first few entries, then keep adding one new
+  // location signal at a time, matching the old GeoTrail live-feed behavior.
+  const initialCount=Math.min(8,feedRows.length);
+  for(let i=0;i<initialCount;i++){
+    streamIndex=i;
+    pushStreamItem(feedRows[i]);
+  }
+  streamIndex=initialCount;
 
-  if (rows[0]) {
-    document.getElementById("selectedHotspot").innerHTML = `
-      <strong>${escapeHtml(rows[0].name)}</strong>
-      <span>${rows[0].count} records | ${rows[0].avgFaves} avg faves | ${rows[0].avgSentiment}/100 sentiment</span>
-    `;
+  if(feedRows.length>initialCount){
+    streamTimer=setInterval(()=>{
+      const record=feedRows[streamIndex%feedRows.length];
+      pushStreamItem(record);
+      streamIndex+=1;
+    },1200);
   }
 }
-
-function renderMapSvg(kind) {
-  if (kind === "usa") {
-    return `<svg class="country-map" viewBox="0 0 100 100" aria-hidden="true">
-      <path d="M8 43 L12 34 L19 31 L24 24 L35 21 L47 23 L57 25 L64 28 L73 29 L82 36 L91 39 L94 48 L90 56 L84 58 L82 64 L75 65 L69 72 L58 73 L49 69 L41 70 L35 64 L27 65 L20 59 L13 57 L10 50 Z"></path>
-      <path d="M14 78 L21 73 L29 76 L25 84 L15 86 Z"></path>
-      <path d="M24 82 L31 79"></path>
-      <path d="M61 72 L66 83 L72 85 L70 76"></path>
-    </svg>`;
+function drawInsights(rows,locations,themes){const high=[...rows].sort((a,b)=>Number(b.faves||0)-Number(a.faves||0))[0];const best=locations[0],theme=themes[0];const insights=[];if(best)insights.push(['01','Attention gathers',`${best.name} leads this selection with ${fmt(best.count)} records, representing ${Math.round(best.count/Math.max(rows.length,1)*100)}% of the current collection.`]);if(theme)insights.push(['02','A defining travel theme',`${theme.name} is the most represented theme, appearing in ${fmt(theme.count)} records.`]);if(high)insights.push(['03','A standout signal',`“${high.title}” has the highest recorded appreciation in this view, with ${fmt(Math.round(high.faves))} favourites.`]);insights.push(['04','Read the context','These observations describe the supplied records. They are useful directional signals, not proof of causation or a forecast of future demand.']);$('insightList').innerHTML=insights.map(x=>`<div class="insight-item"><span>${x[0]}</span><div><b>${escapeHTML(x[1])}</b><p>${escapeHTML(x[2])}</p></div></div>`).join('')}
+function render(){const rows=filteredRows(),locations=groupBy(rows,'location'),themes=groupBy(rows,'theme'),behaviors=groupBy(rows,'behavior');$('metricRecords').textContent=fmt(rows.length);$('metricFaves').textContent=fmt(Math.round(rows.reduce((s,r)=>s+Number(r.faves||0),0)));const sentiment=avg(rows,'sentiment');$('metricSentiment').textContent=`${sentiment.toFixed(1)}%`;$('sentimentBar').style.width=`${Math.max(0,Math.min(100,sentiment))}%`;$('metricLocations').textContent=fmt(new Set(rows.map(r=>r.location)).size);drawMap(rows);drawChart(locations);drawThemes(themes);drawBehaviors(behaviors,rows.length);drawFeed(rows);drawInsights(rows,locations,themes);}
+function setDataset(ds){state.dataset=ds;state.location='All';state.theme='All';state.behavior='All';$('countryFilter').value=ds;document.querySelectorAll('.country-choice').forEach(b=>b.classList.toggle('active',b.dataset.country===ds));refreshOptions();render()}
+function exportData(){const rows=filteredRows();const blob=new Blob([JSON.stringify({generatedAt:new Date().toISOString(),createdBy:'Kenny Richardson',project:'GeoTrail',filters:state,recordCount:rows.length,records:rows},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='geotrail-tourism-intelligence.json';a.click();URL.revokeObjectURL(url);notify(`Exported ${fmt(rows.length)} records`)}
+function setupTopbarExtras(){
+  const topbar=document.querySelector('.topbar'),filterBar=document.querySelector('.filter-bar');
+  if(topbar&&filterBar&&filterBar.parentElement===topbar.parentElement)topbar.insertAdjacentElement('afterend',filterBar);
+  const livePill=document.querySelector('.topbar-right .live-pill');
+  if(livePill&&!document.querySelector('.github-top-link')){
+    const link=document.createElement('a');link.className='github-top-link';
+    link.href='https://github.com/kennykrichardson';link.target='_blank';link.rel='noopener noreferrer';
+    link.setAttribute('aria-label','Visit Kenny Richardson on GitHub');
+    link.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.56.1.76-.24.76-.54v-2.1c-3.1.67-3.76-1.32-3.76-1.32-.5-1.28-1.24-1.62-1.24-1.62-1.01-.69.08-.68.08-.68 1.12.08 1.71 1.15 1.71 1.15 1 .1.75 2.15 3.25 1.63.1-.72.39-1.21.7-1.49-2.48-.28-5.09-1.24-5.09-5.52 0-1.22.44-2.22 1.15-3-.12-.28-.5-1.42.11-2.96 0 0 .94-.3 3.05 1.14a10.6 10.6 0 0 1 5.55 0c2.11-1.44 3.05-1.14 3.05-1.14.61 1.54.23 2.68.11 2.96.72.78 1.15 1.78 1.15 3 0 4.29-2.61 5.23-5.1 5.51.4.35.75 1.03.75 2.08v3.08c0 .3.2.65.77.54A11.1 11.1 0 0 0 12 .9Z"/></svg><span>GITHUB</span>';
+    livePill.insertAdjacentElement('afterend',link);
   }
-  if (kind === "england") {
-    return `<svg class="country-map" viewBox="0 0 100 100" aria-hidden="true">
-      <path d="M54 10 L64 15 L66 24 L61 31 L70 37 L66 47 L72 57 L67 66 L61 77 L52 91 L43 82 L45 70 L38 61 L42 52 L35 44 L42 35 L38 27 L47 21 Z"></path>
-      <path d="M48 72 L58 73 L70 80 L76 87"></path>
-      <path d="M43 83 L35 87 L31 82"></path>
-    </svg>`;
-  }
-  return `<svg class="country-map" viewBox="0 0 100 100" aria-hidden="true">
-    <path d="M7 43 L14 33 L26 25 L43 22 L62 27 L78 32 L93 45 L87 60 L71 70 L52 72 L34 66 L18 58 Z"></path>
-    <path d="M56 10 L65 16 L66 25 L61 32 L70 38 L66 48 L72 58 L65 72 L54 90 L43 80 L45 68 L38 60 L42 51 L35 43 L43 34 L39 26 L48 20 Z"></path>
-  </svg>`;
 }
-
-function renderTagCloud(rows) {
-  const max = Math.max(...rows.map(row => row.count), 1);
-  if (!rows.length) {
-    document.getElementById("tagCloud").innerHTML = '<div class="empty-state">No tags match the current filters.</div>';
-    return;
-  }
-  document.getElementById("tagCloud").innerHTML = rows.map(row => `
-    <button style="--weight:${0.85 + (row.count / max) * 1.2}" data-tag="${escapeHtml(row.name)}">${escapeHtml(row.name)} <span>${row.count}</span></button>
-  `).join("");
-
-  document.querySelectorAll("#tagCloud button").forEach(button => {
-    button.addEventListener("click", async () => {
-      filters.search = button.dataset.tag;
-      document.getElementById("searchFilter").value = filters.search;
-      await refresh();
-    });
-  });
-}
-
-function renderSegments(rows) {
-  document.getElementById("segmentGrid").innerHTML = rows.map(row => `
-    <button class="segment-card" data-behavior="${escapeHtml(row.name)}">
-      <strong>${escapeHtml(row.name)}</strong>
-      <div class="segment-share">${row.share}%</div>
-      <span>${row.count} records | ${row.avgFaves} avg faves | ${row.avgSentiment}/100 sentiment</span>
-    </button>
-  `).join("");
-
-  document.querySelectorAll(".segment-card").forEach(card => {
-    card.addEventListener("click", async () => {
-      filters.behavior = card.dataset.behavior;
-      document.getElementById("behaviorFilter").value = filters.behavior;
-      await refresh();
-    });
-  });
-}
-
-function renderForecast(rows) {
-  document.getElementById("forecastList").innerHTML = rows.map(row => `
-    <div class="forecast-item">
-      <strong>${row.period}: ${row.predictedVolume} records</strong>
-      <span>${row.predictedEngagement} predicted faves | ${row.confidence}% confidence</span>
-    </div>
-  `).join("");
-}
-
-function renderSignals(id, rows, emptyText) {
-  document.getElementById(id).innerHTML = rows.length ? rows.map(row => `
-    <div class="signal-item">
-      <strong>${escapeHtml(row.type || row.pair || row.title)}</strong>
-      <span>${escapeHtml(row.label || row.detail || `${row.count} co-occurrences`)} | ${escapeHtml(row.value || row.impact || "")}</span>
-    </div>
-  `).join("") : `<div class="signal-item"><strong>${emptyText}</strong></div>`;
-}
-
-function pushStreamItem(item) {
-  const feed = document.getElementById("liveFeed");
-  const node = document.createElement("article");
-  node.className = "feed-item enter";
-  node.innerHTML = `
-    <strong>${escapeHtml(item.title)}</strong>
-    <span>${escapeHtml(item.location)} | ${escapeHtml(item.theme)} | ${item.faves} faves</span>
-    <div>${item.tags.map(tag => `<em>${escapeHtml(tag)}</em>`).join("")}</div>
-  `;
-  feed.prepend(node);
-  while (feed.children.length > 8) feed.lastElementChild.remove();
-  streamEvents += 1;
-  setText("streamCounter", `${streamEvents} events`);
-}
-
-function restartStream() {
-  clearInterval(streamTimer);
-  streamIndex = 0;
-  streamEvents = 0;
-  document.getElementById("liveFeed").innerHTML = "";
-  setText("streamCounter", "0 events");
-
-  if (!currentAnalytics?.stream?.length) return;
-  streamTimer = setInterval(() => {
-    const item = currentAnalytics.stream[streamIndex % currentAnalytics.stream.length];
-    pushStreamItem(item);
-    streamIndex += 1;
-  }, 1200);
-}
-
-function runPipelineAnimation() {
-  const nodes = document.querySelectorAll(".pipe-node");
-  nodes.forEach(node => node.classList.remove("active", "done"));
-  nodes.forEach((node, index) => {
-    setTimeout(() => {
-      nodes.forEach(other => other.classList.remove("active"));
-      node.classList.add("active");
-      if (index > 0) nodes[index - 1].classList.add("done");
-      if (index === nodes.length - 1) setTimeout(() => node.classList.add("done"), 700);
-    }, index * 650);
-  });
-}
-
-function renderDashboard(data, optionsReady = true) {
-  currentAnalytics = data;
-  const generated = new Date(data.generatedAt);
-
-  if (optionsReady) {
-    populateSelect("datasetFilter", data.options.datasets, filters.dataset);
-    populateSelect("locationFilter", data.options.locations, filters.location);
-    populateSelect("themeFilter", data.options.themes, filters.theme);
-    populateSelect("behaviorFilter", data.options.behaviors, filters.behavior);
-  }
-
-  setText("generatedAt", `Generated ${generated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`);
-  setText("recordCount", `${formatNumber(data.source.filteredRecords)} of ${formatNumber(data.source.totalRecords)} rows`);
-  setText("records", formatNumber(data.summary.records));
-  setText("totalFaves", formatNumber(data.summary.totalFaves));
-  setText("sentiment", `${data.summary.avgSentiment}/100`);
-  setText("uniqueTags", formatNumber(data.summary.uniqueTags));
-  setText("pipeIngest", `${formatNumber(data.source.totalRecords)} CSV rows`);
-
-  drawAttentionBars(data.barSeries);
-  renderHotspots(data.hotspots, data.map);
-  renderTagCloud(data.tags);
-  renderSegments(data.behaviors);
-  renderForecast(data.forecast.next);
-  renderSignals("cooccurrenceList", data.cooccurrence, "No tag links found");
-  renderSignals("anomalyList", data.anomalies, "No anomalies detected");
-  restartStream();
-}
-
-async function refresh() {
-  const data = await fetchAnalytics();
-  renderDashboard(data);
-}
-
-function downloadAnalytics() {
-  if (!currentAnalytics) return;
-  const blob = new Blob([JSON.stringify(currentAnalytics, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "tourist-behaviour-analytics.json";
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
-async function boot() {
-  const analytics = await fetchAnalytics();
-  renderDashboard(analytics);
-}
-
-document.getElementById("datasetFilter").addEventListener("change", async event => {
-  filters.dataset = event.target.value;
-  await refresh();
-});
-
-document.getElementById("locationFilter").addEventListener("change", async event => {
-  filters.location = event.target.value;
-  await refresh();
-});
-
-document.getElementById("themeFilter").addEventListener("change", async event => {
-  filters.theme = event.target.value;
-  await refresh();
-});
-
-document.getElementById("behaviorFilter").addEventListener("change", async event => {
-  filters.behavior = event.target.value;
-  await refresh();
-});
-
-document.getElementById("favesFilter").addEventListener("input", async event => {
-  filters.minFaves = Number(event.target.value);
-  setText("favesValue", filters.minFaves);
-});
-
-document.getElementById("favesFilter").addEventListener("change", refresh);
-
-document.getElementById("searchFilter").addEventListener("search", async event => {
-  filters.search = event.target.value;
-  await refresh();
-});
-
-document.getElementById("searchFilter").addEventListener("keydown", async event => {
-  if (event.key === "Enter") {
-    filters.search = event.target.value;
-    await refresh();
-  }
-});
-
-document.getElementById("playBtn").addEventListener("click", event => {
-  if (streamTimer) {
-    clearInterval(streamTimer);
-    streamTimer = null;
-    event.target.textContent = "Resume Stream";
-    setText("streamStatus", "Stream paused");
-  } else {
-    restartStream();
-    event.target.textContent = "Pause Stream";
-    setText("streamStatus", "Stream running");
-  }
-});
-
-document.getElementById("refreshBtn").addEventListener("click", refresh);
-document.getElementById("downloadBtn").addEventListener("click", downloadAnalytics);
-document.getElementById("runPipelineBtn").addEventListener("click", runPipelineAnimation);
-
-
-boot().catch(error => {
-  document.body.insertAdjacentHTML("afterbegin", `<div class="error-banner">${escapeHtml(error.message)}</div>`);
-});
-
-const menuToggle = document.getElementById("menuToggle");
-const menuBackdrop = document.getElementById("menuBackdrop");
-const sidebar = document.getElementById("sidebar");
-
-function setMenuOpen(open) {
-  document.body.classList.toggle("menu-open", open);
-  menuToggle.setAttribute("aria-expanded", String(open));
-}
-
-menuToggle.addEventListener("click", () => {
-  setMenuOpen(!document.body.classList.contains("menu-open"));
-});
-
-menuBackdrop.addEventListener("click", () => setMenuOpen(false));
-
-sidebar.querySelectorAll("a").forEach(link => {
-  link.addEventListener("click", () => setMenuOpen(false));
-});
-
-
-
-// ===== GeoTrail Animation Upgrade =====
-
-function animateCounters() {
-  document.querySelectorAll('[data-counter]').forEach(el => {
-    const target = Number(el.dataset.counter || 0);
-    let current = 0;
-    const increment = Math.max(1, Math.ceil(target / 60));
-
-    const update = () => {
-      current += increment;
-
-      if (current >= target) {
-        current = target;
-      }
-
-      el.textContent = current.toLocaleString();
-
-      if (current < target) {
-        requestAnimationFrame(update);
-      }
-    };
-
-    el.classList.add('counter-pop');
-    update();
-  });
-}
-
-function animateCharts() {
-  document.querySelectorAll('.bar, .chart-bar, .chart-column').forEach(bar => {
-    bar.classList.add('chart-grow');
-  });
-}
-
-function applyFadeIns() {
-  document.querySelectorAll('.card, .panel, .chart').forEach(el => {
-    el.classList.add('fade-in');
-  });
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-  animateCounters();
-  animateCharts();
-  applyFadeIns();
-});
+function bind(){setupTopbarExtras();document.querySelectorAll('.country-choice').forEach(b=>b.addEventListener('click',()=>setDataset(b.dataset.country)));$('countryFilter').addEventListener('change',e=>setDataset(e.target.value));[['locationFilter','location'],['themeFilter','theme'],['behaviorFilter','behavior']].forEach(([id,key])=>$(id).addEventListener('change',e=>{state[key]=e.target.value;render()}));$('searchInput').addEventListener('input',e=>{state.search=e.target.value;render()});$('resetFilters').addEventListener('click',()=>{state.location=state.theme=state.behavior='All';state.search='';$('searchInput').value='';refreshOptions();render();notify('Filters reset')});$('exportBtn').addEventListener('click',exportData);$('fitMap').addEventListener('click',()=>{if(state.dataset==='All')map.setView([27,35],2);else map.fitBounds(COUNTRY_META[state.dataset].bounds,{padding:[20,20]})});$('mobileMenu').addEventListener('click',()=>$('sidebar').classList.toggle('open'));document.querySelectorAll('.nav-link').forEach(a=>a.addEventListener('click',()=>{$('sidebar').classList.remove('open');document.querySelectorAll('.nav-link').forEach(n=>n.classList.remove('active'));a.classList.add('active')}));}
+async function boot(){try{$('todayLabel').textContent=new Intl.DateTimeFormat('en',{dateStyle:'medium'}).format(new Date()).toUpperCase();const response=await fetch(DATA_URL);if(!response.ok)throw new Error(`Dataset request failed (${response.status})`);records=await response.json();if(!Array.isArray(records)||!records.length)throw new Error('Tourism dataset is empty or invalid');initMap();bind();refreshOptions();render();if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('/service-worker.js').catch(()=>{});}catch(error){console.error(error);$('metricRecords').textContent='DATA ERROR';$('liveFeed').innerHTML=`<div class="empty-state">GeoTrail could not load its dataset. ${escapeHTML(error.message)}</div>`;notify('Unable to load GeoTrail data')}}
+boot();
