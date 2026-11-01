@@ -74,6 +74,8 @@ function drawFeed(rows){
     locations.forEach(list=>{if(list[index])feedRows.push(list[index]);});
   }
 
+  const totalLabel=$('feedTotal');
+  if(totalLabel)totalLabel.textContent=fmt(feedRows.length);
   if(!host)return;
   host.innerHTML='';
   if(!feedRows.length){
@@ -114,6 +116,12 @@ function setupTopbarExtras(){
     livePill.insertAdjacentElement('afterend',link);
   }
 }
-function bind(){setupTopbarExtras();document.querySelectorAll('.country-choice').forEach(b=>b.addEventListener('click',()=>setDataset(b.dataset.country)));$('countryFilter').addEventListener('change',e=>setDataset(e.target.value));[['locationFilter','location'],['themeFilter','theme'],['behaviorFilter','behavior']].forEach(([id,key])=>$(id).addEventListener('change',e=>{state[key]=e.target.value;render()}));$('searchInput').addEventListener('input',e=>{state.search=e.target.value;render()});$('resetFilters').addEventListener('click',()=>{state.location=state.theme=state.behavior='All';state.search='';$('searchInput').value='';refreshOptions();render();notify('Filters reset')});$('exportBtn').addEventListener('click',exportData);$('fitMap').addEventListener('click',()=>{if(state.dataset==='All')map.setView([27,35],2);else map.fitBounds(COUNTRY_META[state.dataset].bounds,{padding:[20,20]})});$('mobileMenu').addEventListener('click',()=>$('sidebar').classList.toggle('open'));document.querySelectorAll('.nav-link').forEach(a=>a.addEventListener('click',()=>{$('sidebar').classList.remove('open');document.querySelectorAll('.nav-link').forEach(n=>n.classList.remove('active'));a.classList.add('active')}));}
+function bind(){
+  let resizeFrame=0;
+  window.addEventListener('resize',()=>{
+    cancelAnimationFrame(resizeFrame);
+    resizeFrame=requestAnimationFrame(()=>{if(map)map.invalidateSize({pan:false});});
+  },{passive:true});
+  setupTopbarExtras();document.querySelectorAll('.country-choice').forEach(b=>b.addEventListener('click',()=>setDataset(b.dataset.country)));$('countryFilter').addEventListener('change',e=>setDataset(e.target.value));[['locationFilter','location'],['themeFilter','theme'],['behaviorFilter','behavior']].forEach(([id,key])=>$(id).addEventListener('change',e=>{state[key]=e.target.value;render()}));$('searchInput').addEventListener('input',e=>{state.search=e.target.value;render()});$('resetFilters').addEventListener('click',()=>{state.location=state.theme=state.behavior='All';state.search='';$('searchInput').value='';refreshOptions();render();notify('Filters reset')});$('exportBtn').addEventListener('click',exportData);$('fitMap').addEventListener('click',()=>{if(state.dataset==='All')map.setView([27,35],2);else map.fitBounds(COUNTRY_META[state.dataset].bounds,{padding:[20,20]})});$('mobileMenu').addEventListener('click',()=>$('sidebar').classList.toggle('open'));document.querySelectorAll('.nav-link').forEach(a=>a.addEventListener('click',()=>{$('sidebar').classList.remove('open');document.querySelectorAll('.nav-link').forEach(n=>n.classList.remove('active'));a.classList.add('active')}));}
 async function boot(){try{$('todayLabel').textContent=new Intl.DateTimeFormat('en',{dateStyle:'medium'}).format(new Date()).toUpperCase();const response=await fetch(DATA_URL);if(!response.ok)throw new Error(`Dataset request failed (${response.status})`);records=await response.json();if(!Array.isArray(records)||!records.length)throw new Error('Tourism dataset is empty or invalid');initMap();bind();refreshOptions();render();if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('/service-worker.js').catch(()=>{});}catch(error){console.error(error);$('metricRecords').textContent='DATA ERROR';$('liveFeed').innerHTML=`<div class="empty-state">GeoTrail could not load its dataset. ${escapeHTML(error.message)}</div>`;notify('Unable to load GeoTrail data')}}
 boot();
